@@ -3,9 +3,9 @@ import { useAuthStore } from "@/modules/auth/stores/useAuthStore";
 import Navbar from "@/modules/core/components/Navbar";
 import Sidebar from "@/modules/core/components/Sidebar";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { Outlet, useNavigate } from "react-router";
 
-function DashboardPage({ children }: { children: React.ReactNode }) {
+function DashboardLayout() {
   const { setUser } = useAuthStore();
   const navigate = useNavigate();
   const { getProfile } = useAuthService();
@@ -30,12 +30,14 @@ function DashboardPage({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-full w-full">
       <Sidebar />
-      <div className="flex min-h-full flex-1 flex-col">
+      <div className="flex h-full flex-1 flex-col">
         <Navbar />
-        {children}
+        <main className="min-h-0 flex-1 overflow-y-auto">
+          <Outlet />
+        </main>
       </div>
     </div>
   );
 }
 
-export default DashboardPage;
+export default DashboardLayout;
