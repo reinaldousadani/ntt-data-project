@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const DEFAULT_API_TIMEOUT = 10000;
+const DEFAULT_API_TIMEOUT = 90000;
 const DEFAULT_ERROR_STATUS = 500;
 const DEFAULT_ERROR_MESSAGE = "Internal Server Error";
 const DEFAULT_BASE_URL = "https://dummyjson.com";
