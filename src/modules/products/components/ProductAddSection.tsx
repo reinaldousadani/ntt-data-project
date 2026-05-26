@@ -354,7 +354,7 @@ function ProductAddSection() {
         <div className="flex flex-col items-end gap-2">
           <Button type="submit" disabled={isSubmitting}>
             <Check />
-            {isSubmitting ? "Creating…" : "Create product"}
+            {isSubmitting || loading ? "Creating…" : "Create product"}
           </Button>
         </div>
       </form>

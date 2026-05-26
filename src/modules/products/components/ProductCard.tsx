@@ -1,4 +1,4 @@
-import { Check, InfoIcon, Pencil, Star, Trash2 } from "lucide-react";
+import { Check, Pencil, Star, Trash2 } from "lucide-react";
 import { Button } from "@/modules/core/components/ui/button";
 import {
   AlertDialog,
@@ -35,11 +35,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { GenericErrorResponse } from "@/modules/core/services/api";
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/modules/core/components/ui/alert";
 
 type ProductCardProps = {
   product: Product;
