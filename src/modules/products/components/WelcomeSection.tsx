@@ -33,7 +33,7 @@ function WelcomeSection() {
             <Button
               variant="ghost"
               className="border border-white/15 bg-white/10 text-white hover:bg-white/15 hover:text-white"
-              onClick={() => navigate("/dashboard/products")}
+              onClick={() => navigate("/dashboard/products/add")}
             >
               <Plus />
               Add a product
