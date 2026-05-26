@@ -9,6 +9,10 @@
   overflow-x: hidden;
 }
 
+html {
+  overflow: hidden;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

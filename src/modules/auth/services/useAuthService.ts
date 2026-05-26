@@ -93,8 +93,7 @@ export function useAuthService() {
       window.localStorage.setItem(REFRESH_TOKEN_KEY, res.data.refreshToken);
       return res.data;
     } catch (error) {
-      setUser(null);
-      throw errorHandler(error);
+      logout();
     }
   };
 
