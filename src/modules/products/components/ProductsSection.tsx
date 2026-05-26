@@ -59,7 +59,7 @@ function ProductsSection() {
   useEffect(() => {
     // Debounced search
     const timer = setTimeout(() => {
-        setParams(1, searchInput);
+      setParams(1, searchInput);
     }, 200);
     return () => clearTimeout(timer);
   }, [searchInput]);
@@ -67,6 +67,9 @@ function ProductsSection() {
   useEffect(() => {
     // Reset products store.
     resetAll();
+    return () => {
+      resetAll();
+    };
   }, []);
 
   useEffect(() => {
