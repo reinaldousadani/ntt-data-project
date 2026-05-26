@@ -11,7 +11,7 @@ import {
   FieldError,
   FieldLabel,
 } from "@/modules/core/components/ui/field";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { cn } from "@/modules/lib/utils";
 import { useAuthService } from "../services/useAuthService";
@@ -30,6 +30,22 @@ function LoginPage() {
   const { login, getProfile } = useAuthService();
   const { setUser } = useAuthStore();
   const navigate = useNavigate();
+  const [initLoading, setInitLoading] = useState(true);
+
+  // Auth Guard
+  useEffect(() => {
+    getProfile()
+      .then((profile) => {
+        setUser(profile);
+        navigate("/dashboard", { replace: true });
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        setInitLoading(false);
+      });
+  }, []);
 
   const {
     register,
@@ -55,6 +71,8 @@ function LoginPage() {
     }
     setLoading(false);
   };
+
+  if (initLoading) return null;
 
   return (
     <div className="flex h-full w-full items-center justify-center">

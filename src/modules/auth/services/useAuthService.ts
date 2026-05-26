@@ -3,6 +3,8 @@ import {
   errorHandler,
   publicApiService,
 } from "@/modules/core/services/api";
+import { useAuthStore } from "../stores/useAuthStore";
+import { useNavigate } from "react-router";
 
 const ACCESS_TOKEN_EXPIRY = 30;
 export const ACCESS_TOKEN_KEY = "access-token";
@@ -34,6 +36,8 @@ export type GetProfileResponse = {
 };
 
 export function useAuthService() {
+  const { setUser } = useAuthStore();
+  const navigate = useNavigate();
   const login = async ({ username, password }: LoginPayload) => {
     try {
       const res = await publicApiService.post<LoginResponse>("/auth/login", {
@@ -89,9 +93,16 @@ export function useAuthService() {
       window.localStorage.setItem(REFRESH_TOKEN_KEY, res.data.refreshToken);
       return res.data;
     } catch (error) {
+      setUser(null);
       throw errorHandler(error);
     }
   };
 
-  return { login, getProfile, refreshAccessToken };
+  const logout = () => {
+    window.localStorage.clear();
+    setUser(null);
+    navigate("/", { replace: true });
+  };
+
+  return { login, getProfile, refreshAccessToken, logout };
 }
