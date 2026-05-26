@@ -132,5 +132,36 @@ export function useProductsService() {
     }
   };
 
-  return { getProducts, deleteProductById };
+  const updateProductById = async (id: number, payload: Partial<Product>) => {
+    const updateFunc = async () => {
+      const res = await authenticatedApiService.patch<Product>(
+        "/auth/products/" + id,
+        payload,
+        {
+          headers: {
+            Authorization: `${window.localStorage.getItem(ACCESS_TOKEN_KEY)}`,
+          },
+        },
+      );
+      return res.data;
+    };
+
+    try {
+      return await updateFunc();
+    } catch (error) {
+      const errObj = errorHandler(error);
+      if (errObj.status === 401) {
+        try {
+          await refreshAccessToken();
+          return await updateFunc();
+        } catch (error) {
+          throw errorHandler(error);
+        }
+      } else {
+        throw errObj;
+      }
+    }
+  };
+
+  return { getProducts, deleteProductById, updateProductById };
 }

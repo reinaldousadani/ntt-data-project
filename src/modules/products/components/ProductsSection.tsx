@@ -39,7 +39,8 @@ function getPageItems(current: number, total: number): (number | "ellipsis")[] {
 
 function ProductsSection() {
   const navigate = useNavigate();
-  const { getProducts, deleteProductById } = useProductsService();
+  const { getProducts, deleteProductById, updateProductById } =
+    useProductsService();
   const {
     currentProducts,
     setAvailableItemsCount,
@@ -60,8 +61,8 @@ function ProductsSection() {
     setParams(page, currentQuery);
   };
 
-  const onEdit = (product: Product) => {
-    console.log("EDIT: ", product);
+  const onEdit = async (id: number, payload: Partial<Product>) => {
+    await updateProductById(id, payload);
   };
 
   const onDelete = async (product: Product) => {
@@ -125,7 +126,7 @@ function ProductsSection() {
           <ProductCard
             key={product.id}
             product={product}
-            onEdit={() => onEdit(product)}
+            onEdit={(id, payload) => onEdit(id, payload)}
             onDelete={() => onDelete(product)}
           />
         ))}

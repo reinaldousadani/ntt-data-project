@@ -1,4 +1,4 @@
-import { Pencil, Star, Trash2 } from "lucide-react";
+import { Check, InfoIcon, Pencil, Star, Trash2 } from "lucide-react";
 import { Button } from "@/modules/core/components/ui/button";
 import {
   AlertDialog,
@@ -12,21 +12,88 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/modules/core/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/modules/core/components/ui/dialog";
+import {
+  Field,
+  FieldError,
+  FieldLabel,
+} from "@/modules/core/components/ui/field";
+import { Input } from "@/modules/core/components/ui/input";
+import { Textarea } from "@/modules/core/components/ui/textarea";
 import { cn } from "@/modules/lib/utils";
 import type { Product } from "../services/useProductsService";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { GenericErrorResponse } from "@/modules/core/services/api";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/modules/core/components/ui/alert";
 
 type ProductCardProps = {
   product: Product;
-  onEdit: (product: Product) => void;
-  onDelete: (product: Product) => Promise<void>;
+  onEdit: (id: number, payload: Partial<Product>) => void | Promise<void>;
+  onDelete: (product: Product) => void | Promise<void>;
+};
+
+type EditFormValues = {
+  name: string;
+  description: string;
 };
 
 function ProductCard({ product, onEdit, onDelete }: ProductCardProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<EditFormValues>({
+    defaultValues: {
+      name: product.title,
+      description: product.description,
+    },
+  });
+
+  const handleEdit = async (values: EditFormValues) => {
+    try {
+      await onEdit(product.id, {
+        title: values.name,
+        description: values.description
+      });
+      toast.success(
+        `Updated ${product.title}. NOTE: THIS IS ONLY A MOCK. NO ACTUAL DATA IS UPDATED ON SERVER.`,
+      );
+      setEditDialogOpen(false);
+    } catch (error) {
+      toast.error(
+        (error as unknown as GenericErrorResponse).errorMsg ??
+          "Some error happened.",
+      );
+    }
+  };
+
+  const handleEditOpenChange = (next: boolean) => {
+    if (isSubmitting && !next) return;
+    if (next) {
+      reset({ name: product.title, description: product.description });
+    }
+    setEditDialogOpen(next);
+  };
 
   const discount = Math.round(product.discountPercentage);
   const originalPrice =
@@ -67,15 +134,88 @@ function ProductCard({ product, onEdit, onDelete }: ProductCardProps) {
           </div>
         )}
         <div className="absolute top-3 right-3 flex gap-1.5">
-          <Button
-            type="button"
-            size="icon-sm"
-            variant="outline"
-            aria-label={`Edit ${product.title}`}
-            onClick={() => onEdit?.(product)}
-          >
-            <Pencil />
-          </Button>
+          <Dialog open={editDialogOpen} onOpenChange={handleEditOpenChange}>
+            <DialogTrigger asChild>
+              <Button
+                type="button"
+                size="icon-sm"
+                variant="outline"
+                aria-label={`Edit ${product.title}`}
+              >
+                <Pencil />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <form onSubmit={handleSubmit(handleEdit)} noValidate>
+                <DialogHeader>
+                  <DialogTitle>Edit product</DialogTitle>
+                  <DialogDescription>
+                    Update name and description
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="flex flex-col gap-4 py-4">
+                  <Field data-invalid={!!errors.name}>
+                    <FieldLabel htmlFor={`name-${product.id}`}>Name</FieldLabel>
+                    <Input
+                      id={`name-${product.id}`}
+                      aria-invalid={!!errors.name}
+                      {...register("name", {
+                        required: "Name is required",
+                        maxLength: {
+                          value: 100,
+                          message: "Name must be 100 characters or fewer",
+                        },
+                      })}
+                    />
+                    <FieldError
+                      errors={errors.name ? [errors.name] : undefined}
+                    />
+                  </Field>
+
+                  <Field data-invalid={!!errors.description}>
+                    <FieldLabel htmlFor={`description-${product.id}`}>
+                      Description
+                    </FieldLabel>
+                    <Textarea
+                      id={`description-${product.id}`}
+                      rows={4}
+                      aria-invalid={!!errors.description}
+                      {...register("description", {
+                        required: "Description is required",
+                        maxLength: {
+                          value: 1000,
+                          message:
+                            "Description must be 1000 characters or fewer",
+                        },
+                      })}
+                    />
+                    <FieldError
+                      errors={
+                        errors.description ? [errors.description] : undefined
+                      }
+                    />
+                  </Field>
+                </div>
+
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={isSubmitting}
+                    >
+                      Cancel
+                    </Button>
+                  </DialogClose>
+                  <Button type="submit" disabled={isSubmitting}>
+                    <Check />
+                    {isSubmitting ? "Saving…" : "Save changes"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
           <AlertDialog open={deleteDialogOpen}>
             <AlertDialogTrigger asChild>
               <Button
