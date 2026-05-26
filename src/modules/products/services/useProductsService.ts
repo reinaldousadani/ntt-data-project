@@ -63,6 +63,8 @@ export type GetProductsParams = {
   page?: number;
 };
 
+export type GetProductCategoryListResponse = Array<string>;
+
 export function useProductsService() {
   const { refreshAccessToken } = useAuthService();
 
@@ -163,5 +165,72 @@ export function useProductsService() {
     }
   };
 
-  return { getProducts, deleteProductById, updateProductById };
+  const getProductCategoryList = async () => {
+    const fetchFunc = async () => {
+      const res =
+        await authenticatedApiService.get<GetProductCategoryListResponse>(
+          "/products/category-list",
+          {
+            headers: {
+              Authorization: `${window.localStorage.getItem(ACCESS_TOKEN_KEY)}`,
+            },
+          },
+        );
+      return res.data;
+    };
+    try {
+      return await fetchFunc();
+    } catch (error) {
+      const errObj = errorHandler(error);
+      if (errObj.status === 401) {
+        try {
+          await refreshAccessToken();
+          return await fetchFunc();
+        } catch (error) {
+          throw errorHandler(error);
+        }
+      } else {
+        throw errObj;
+      }
+    }
+  };
+
+  const createProduct = async (payload: Partial<Product>) => {
+    const createFunc = async () => {
+      const res = await authenticatedApiService.post<Product>(
+        "/auth/products/add",
+        payload,
+        {
+          headers: {
+            Authorization: `${window.localStorage.getItem(ACCESS_TOKEN_KEY)}`,
+          },
+        },
+      );
+      return res.data;
+    };
+
+    try {
+      return await createFunc();
+    } catch (error) {
+      const errObj = errorHandler(error);
+      if (errObj.status === 401) {
+        try {
+          await refreshAccessToken();
+          return await createFunc();
+        } catch (error) {
+          throw errorHandler(error);
+        }
+      } else {
+        throw errObj;
+      }
+    }
+  };
+
+  return {
+    getProducts,
+    deleteProductById,
+    updateProductById,
+    getProductCategoryList,
+    createProduct
+  };
 }

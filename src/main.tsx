@@ -6,6 +6,7 @@ import LoginPage from "./modules/auth/pages/LoginPage.tsx";
 import DashboardLayout from "./modules/products/pages/DashboardLayout.tsx";
 import WelcomeSection from "./modules/products/components/WelcomeSection.tsx";
 import ProductsSection from "./modules/products/components/ProductsSection.tsx";
+import ProductAddSection from "./modules/products/components/ProductAddSection.tsx";
 import { Toaster } from "sonner";
 import { TooltipProvider } from "./modules/core/components/ui/tooltip.tsx";
 
@@ -19,6 +20,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<WelcomeSection />} />
             <Route path="products" element={<ProductsSection />} />
+            <Route path="products/add" element={<ProductAddSection />} />
           </Route>
         </Routes>
       </BrowserRouter>

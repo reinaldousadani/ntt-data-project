@@ -63,10 +63,12 @@ function ProductsSection() {
 
   const onEdit = async (id: number, payload: Partial<Product>) => {
     await updateProductById(id, payload);
+    setParams(1, "")
   };
 
   const onDelete = async (product: Product) => {
     await deleteProductById(product.id);
+    setParams(1, "")
   };
 
   useEffect(() => {
