@@ -14,6 +14,11 @@ import {
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { cn } from "@/modules/lib/utils";
+import { useAuthService } from "../services/useAuthService";
+import { toast } from "sonner";
+import type { GenericErrorResponse } from "@/modules/core/services/api";
+import { useAuthStore } from "../stores/useAuthStore";
+import { useNavigate } from "react-router";
 
 type LoginFormValues = {
   username: string;
@@ -22,6 +27,9 @@ type LoginFormValues = {
 
 function LoginPage() {
   const [loading, setLoading] = useState(false);
+  const { login, getProfile } = useAuthService();
+  const { setUser } = useAuthStore();
+  const navigate = useNavigate();
 
   const {
     register,
@@ -29,9 +37,23 @@ function LoginPage() {
     formState: { errors },
   } = useForm<LoginFormValues>();
 
-  const onSubmit = (values: LoginFormValues) => {
+  const onSubmit = async (values: LoginFormValues) => {
     setLoading(true);
-    console.log(values);
+    try {
+      await login({
+        username: values.username,
+        password: values.password,
+      });
+      const profile = await getProfile();
+      setUser(profile);
+      navigate("/dashboard", { replace: true });
+    } catch (error) {
+      toast.error(
+        (error as unknown as GenericErrorResponse).errorMsg ??
+          "Some error happened.",
+      );
+    }
+    setLoading(false);
   };
 
   return (
@@ -68,7 +90,9 @@ function LoginPage() {
               },
             })}
           />
-          <FieldError errors={errors.username ? [errors.username] : undefined} />
+          <FieldError
+            errors={errors.username ? [errors.username] : undefined}
+          />
         </Field>
         <Field data-invalid={!!errors.password}>
           <FieldLabel htmlFor="password">Password</FieldLabel>
@@ -85,7 +109,9 @@ function LoginPage() {
               },
             })}
           />
-          <FieldError errors={errors.password ? [errors.password] : undefined} />
+          <FieldError
+            errors={errors.password ? [errors.password] : undefined}
+          />
         </Field>
         <Button
           type="submit"

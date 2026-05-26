@@ -4,9 +4,11 @@ import "./index.css";
 import { BrowserRouter, Route, Routes } from "react-router";
 import LoginPage from "./modules/auth/pages/LoginPage.tsx";
 import DashboardPage from "./modules/products/pages/DashboardPage.tsx";
+import { Toaster } from "sonner";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
+    <Toaster />
     <BrowserRouter>
       <Routes>
         <Route index element={<LoginPage />} />
