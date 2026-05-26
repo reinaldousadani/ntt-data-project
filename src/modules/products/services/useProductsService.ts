@@ -47,6 +47,8 @@ export type Product = {
   };
   thumbnail: string;
   images: string[];
+  isDeleted?: boolean;
+  deletedOn?: string;
 };
 
 export type GetProductsResponse = {
@@ -100,5 +102,35 @@ export function useProductsService() {
     }
   };
 
-  return { getProducts };
+  const deleteProductById = async (id: number) => {
+    const deleteFunc = async () => {
+      const res = await authenticatedApiService.delete<Product>(
+        "/auth/products/" + id,
+        {
+          headers: {
+            Authorization: `${window.localStorage.getItem(ACCESS_TOKEN_KEY)}`,
+          },
+        },
+      );
+      return res.data;
+    };
+
+    try {
+      return await deleteFunc();
+    } catch (error) {
+      const errObj = errorHandler(error);
+      if (errObj.status === 401) {
+        try {
+          await refreshAccessToken();
+          return await deleteFunc();
+        } catch (error) {
+          throw errorHandler(error);
+        }
+      } else {
+        throw errObj;
+      }
+    }
+  };
+
+  return { getProducts, deleteProductById };
 }

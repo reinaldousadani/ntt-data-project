@@ -3,7 +3,11 @@ import { useNavigate } from "react-router";
 import { Button } from "@/modules/core/components/ui/button";
 import { Input } from "@/modules/core/components/ui/input";
 import { useEffect, useState } from "react";
-import { useProductsService, PAGE_SIZE } from "../services/useProductsService";
+import {
+  useProductsService,
+  PAGE_SIZE,
+  type Product,
+} from "../services/useProductsService";
 import ProductCard from "./ProductCard";
 import { useProductsStore } from "../stores/useProductsStore";
 import { toast } from "sonner";
@@ -35,7 +39,7 @@ function getPageItems(current: number, total: number): (number | "ellipsis")[] {
 
 function ProductsSection() {
   const navigate = useNavigate();
-  const { getProducts } = useProductsService();
+  const { getProducts, deleteProductById } = useProductsService();
   const {
     currentProducts,
     setAvailableItemsCount,
@@ -54,6 +58,14 @@ function ProductsSection() {
   const goToPage = (page: number) => {
     if (page < 1 || page > totalPages || page === currentPage) return;
     setParams(page, currentQuery);
+  };
+
+  const onEdit = (product: Product) => {
+    console.log("EDIT: ", product);
+  };
+
+  const onDelete = async (product: Product) => {
+    await deleteProductById(product.id);
   };
 
   useEffect(() => {
@@ -110,7 +122,12 @@ function ProductsSection() {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {currentProducts.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <ProductCard
+            key={product.id}
+            product={product}
+            onEdit={() => onEdit(product)}
+            onDelete={() => onDelete(product)}
+          />
         ))}
       </div>
 
