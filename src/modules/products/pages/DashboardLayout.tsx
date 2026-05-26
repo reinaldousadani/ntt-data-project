@@ -1,5 +1,6 @@
 import { useAuthService } from "@/modules/auth/services/useAuthService";
 import { useAuthStore } from "@/modules/auth/stores/useAuthStore";
+import LoadingCover from "@/modules/core/components/LoadingCover";
 import Navbar from "@/modules/core/components/Navbar";
 import Sidebar from "@/modules/core/components/Sidebar";
 import { useEffect, useState } from "react";
@@ -25,7 +26,7 @@ function DashboardLayout() {
       });
   }, []);
 
-  if (initLoading) return null;
+  if (initLoading) return <LoadingCover />;
 
   return (
     <div className="flex h-full w-full">

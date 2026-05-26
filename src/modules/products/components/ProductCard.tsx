@@ -1,4 +1,6 @@
 import { Check, Pencil, Star, Trash2 } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/modules/core/components/ui/avatar";
+import StarRating from "./StarRating";
 import { Button } from "@/modules/core/components/ui/button";
 import {
   AlertDialog,
@@ -47,9 +49,19 @@ type EditFormValues = {
   description: string;
 };
 
+function getInitials(name: string) {
+  return name
+    .split(/\s+/)
+    .map((part) => part[0] ?? "")
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
+
 function ProductCard({ product, onEdit, onDelete }: ProductCardProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const {
@@ -121,14 +133,21 @@ function ProductCard({ product, onEdit, onDelete }: ProductCardProps) {
   };
 
   return (
-    <div className="group bg-card flex cursor-pointer flex-col overflow-hidden rounded-xl border shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+    <>
+    <div
+      className="group bg-card flex cursor-pointer flex-col overflow-hidden rounded-xl border shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+      onClick={() => setDetailDialogOpen(true)}
+    >
       <div className="bg-muted relative aspect-square">
         {discount > 0 && (
           <div className="bg-destructive text-destructive-foreground absolute top-3 left-3 rounded-md px-2 py-1 text-xs font-semibold">
             −{discount}%
           </div>
         )}
-        <div className="absolute top-3 right-3 flex gap-1.5">
+        <div
+          className="absolute top-3 right-3 flex gap-1.5"
+          onClick={(e) => e.stopPropagation()}
+        >
           <Dialog open={editDialogOpen} onOpenChange={handleEditOpenChange}>
             <DialogTrigger asChild>
               <Button
@@ -298,6 +317,140 @@ function ProductCard({ product, onEdit, onDelete }: ProductCardProps) {
         </div>
       </div>
     </div>
+
+      <Dialog open={detailDialogOpen} onOpenChange={setDetailDialogOpen}>
+        <DialogContent
+          className="max-h-[90vh] overflow-y-auto sm:max-w-4xl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <DialogHeader className="border-b pb-4">
+            <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
+              {product.category}
+              {product.brand ? ` · ${product.brand}` : ""}
+            </p>
+            <DialogTitle className="text-2xl font-bold">
+              {product.title}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="bg-muted relative aspect-square overflow-hidden rounded-lg">
+              {discount > 0 && (
+                <div className="bg-destructive text-destructive-foreground absolute top-3 left-3 rounded-md px-2 py-1 text-xs font-semibold">
+                  −{discount}%
+                </div>
+              )}
+              <img
+                src={product.thumbnail}
+                alt={product.title}
+                className="size-full object-contain p-6"
+              />
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <div className="text-muted-foreground flex flex-wrap items-center gap-2 text-sm">
+                <StarRating rating={product.rating} />
+                <span className="text-foreground font-semibold">
+                  {product.rating.toFixed(1)}
+                </span>
+                <span>({product.reviews?.length ?? 0} reviews)</span>
+                {product.sku && (
+                  <>
+                    <span>·</span>
+                    <span>SKU {product.sku}</span>
+                  </>
+                )}
+              </div>
+
+              <div className="flex flex-wrap items-baseline gap-3">
+                <span className="text-foreground text-4xl font-bold">
+                  ${product.price.toFixed(2)}
+                </span>
+                {discount > 0 && (
+                  <>
+                    <span className="text-muted-foreground text-base line-through">
+                      ${originalPrice.toFixed(2)}
+                    </span>
+                    <span className="bg-destructive/10 text-destructive rounded-full px-2.5 py-0.5 text-xs font-semibold">
+                      Save {discount} %
+                    </span>
+                  </>
+                )}
+              </div>
+
+              <p className="text-muted-foreground leading-relaxed">
+                {product.description}
+              </p>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <div
+                  className={cn(
+                    "flex items-center gap-1.5 text-sm",
+                    statusColor,
+                  )}
+                >
+                  <span className="size-1.5 rounded-full bg-current" />
+                  <span>{status}</span>
+                  <span className="text-muted-foreground">
+                    · {product.stock}
+                  </span>
+                </div>
+                {product.tags?.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {product.reviews && product.reviews.length > 0 && (
+            <div className="flex flex-col gap-3 border-t pt-6">
+              <h3 className="text-xl font-bold">
+                Reviews{" "}
+                <span className="text-muted-foreground">
+                  ({product.reviews.length})
+                </span>
+              </h3>
+              <div className="flex flex-col gap-3">
+                {product.reviews.map((review, idx) => (
+                  <div
+                    key={`${review.reviewerEmail}-${idx}`}
+                    className="bg-card flex flex-col gap-2 rounded-lg border p-4"
+                  >
+                    <div className="flex flex-wrap items-start gap-3">
+                      <Avatar>
+                        <AvatarFallback className="bg-slate-900 text-white">
+                          {getInitials(review.reviewerName)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex min-w-0 flex-1 flex-col">
+                        <span className="text-foreground font-semibold">
+                          {review.reviewerName}
+                        </span>
+                        <span className="text-muted-foreground truncate text-sm">
+                          {review.reviewerEmail}
+                        </span>
+                      </div>
+                      <div className="ml-auto flex items-center gap-3">
+                        <StarRating rating={review.rating} size={3} />
+                        <span className="text-muted-foreground text-sm">
+                          {new Date(review.date).toLocaleDateString("en-US")}
+                        </span>
+                      </div>
+                    </div>
+                    <p className="text-foreground">{review.comment}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 

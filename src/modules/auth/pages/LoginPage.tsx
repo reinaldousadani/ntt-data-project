@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import type { GenericErrorResponse } from "@/modules/core/services/api";
 import { useAuthStore } from "../stores/useAuthStore";
 import { useNavigate } from "react-router";
+import LoadingCover from "@/modules/core/components/LoadingCover";
 
 type LoginFormValues = {
   username: string;
@@ -72,7 +73,7 @@ function LoginPage() {
     setLoading(false);
   };
 
-  if (initLoading) return null;
+  if (initLoading) return <LoadingCover />;
 
   return (
     <div className="flex h-full w-full items-center justify-center">
