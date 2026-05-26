@@ -16,7 +16,7 @@ function WelcomeSection() {
         />
         <div className="relative flex flex-col gap-5 text-white">
           <h1 className="max-w-2xl text-3xl leading-tight font-bold text-balance md:text-4xl">
-            Hi {user?.firstName ?? "there"} — welcome back!
+            Hi {user?.firstName} {user?.lastName}, welcome back!
           </h1>
           <p className="max-w-xl text-sm text-white/70">
             What do you want to do today?
