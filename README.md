@@ -81,3 +81,16 @@ Disini adalah tempat dimana "stores" atau "context" suatu state tinggal. Saya me
 ### Product Delete
 1. Tekan Button "Sampah" pada kanan atas product card
 2. Aplikasi akan melakukan HTTP request menggunakan useProductsService.deleteProductById. Apabila berhasil, akan ada notification muncul dan product list akan di refresh dengan cara mengubah page ke 1 dan clear search query.
+
+## Requirements
+- Node 24(LTS)
+
+## Commands
+### Init
+npm i
+
+### Development Server
+npm run dev
+
+### Build
+npm run build
